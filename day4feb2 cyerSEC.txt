@@ -170,8 +170,11 @@ the Basics for Firewalls.
 before: nmap -v 10.m.100.8
 @Cucm:
 config t
-int fa 0/0
- ip add 10.m.100.9 255.255.255.0 Secondary
+int Gi 3
+shut 
+ip add 192.168.103.8 255.255.255.0 
+ip add 192.168.103.9 255.255.255.0 Secondary
+no shut 
 service finger
 service tcp-small-servers
 service udp-small-servers
@@ -179,15 +182,18 @@ ip dns server
 ip http server
 ip http secure-server
 !Make Ping EASY
-ip host pc 10.m.1.10
-ip host cm 10.m.100.8
-ip host cm2 10.m.100.9
-ip host p1 10.m.100.101
-ip host p2 10.m.100.102
-ip host c6 10.m.50.6
-ip host c8 10.m.50.8
-ip host sw 10.m.1.4
-ip host ed 10.m.m.1
+ip host www.web8.com 192.168.103.8
+ip host www.web9.com 192.168.103.9
+ip host pc 10.41.1.10
+ip host cm 10.41.100.8
+ip host cm2 10.41.100.9
+ip host p1 10.41.100.101
+ip host p2 10.41.100.102
+ip host c6 10.41.50.6
+ip host c8 10.41.50.8
+ip host sw 10.41.1.4
+ip host ed 10.41.41.1
+end
 
 TASK7: Enter the World of BlueTeam: Protect vs Redteam: Attack, 
 BlueTeam: UTM: unified Threat management:
@@ -201,26 +207,117 @@ Top 5 UTM: 1.FortinetFortigate:
            2. Checkpoint
            3.4 Cisco
 
+CYBERSWCURITY TASK7: PROTECTING YOUR CORPORATE WEB APPS.
+EX.1 CREATE A FIREWALL POLICY NAMED PROTECTAPPI TO OPEN
+WWW.WEB8.COM HAS HTTP AND HTTPS AS OPEN
+WWW.WEB9.COM HAS SSH AND DNS OPEN
+formula: PROT
+conf t
+no ip access-list extended PROWEBAPP1
+ip access-list extended PROWEBAPP1
+permit tcp any host www.web8.com eq 80 log
+permit tcp any host www.web8.com eq 443 log
+permit tcp any host www.web9.com eq 22 log
+permit tcp any host www.web9.com eq 53 log
+Interface Gi 3
+no  ip access-group PROWEBAPP1 in
+ do sh ip access-list PROWEBAPP1
+
+EX 3.
+web8=dns, ssh, http, telnet
+web9=telnet, https, ssh
+
+conf t
+no ip access-list extended PROWEBAPP3
+ip access-list extended PROWEBAPP3
+permit tcp any host www.web8.com eq 53 log
+permit tcp any host www.web8.com eq 22 log
+permit tcp any host www.web8.com eq 80 log
+permit tcp any host www.web8.com eq 23 log
+permit tcp any host www.web9.com eq 23 log
+permit tcp any host www.web9.com eq 443 log
+permit tcp any host www.web9.com eq 22 log
+Interface Gi 3
+ip access-group PROWEBAPP3 in
+ do sh ip access-list PROWEBAPP3
 
 
+Ex.4.
+web8=ping, dns, https
+web9=everything
+
+conf t
+no ip access-list extended PROWEBAPP4
+ip access-list extended PROWEBAPP4
+permit icmp any host www.web9.com
+permit tcp any host www.web8.com eq 53 log
+permit tcp any host www.web8.com eq 443 log
+permit tcp any host www.web8.com eq 23 log
+permit ip any host www.web9.com
+Interface Gi 3
+ip access-group PROWEBAPP4 in
+ do sh ip access-list PROWEBAPP4
+
+Ex 5. LASTFWP
+web8=ping, dns, chargen, finger, http as open
+web9=ssh, telnet, daytime, dns https as Open
+
+conf t
+no ip access-list extended LASTFWP
+ip access-list extended LASTFWP
+permit icmp any host www.web8.com
+permit tcp any host www.web8.com eq 53 log
+permit tcp any host www.web8.com eq 443 log
+permit tcp any host www.web8.com eq 19 log
+permit tcp any host www.web8.com eq 79 log
+permit tcp any host www.web8.com eq 80 log
+permit tcp any host www.web9.com eq 22 log
+permit tcp any host www.web9.com eq 23 log
+permit tcp any host www.web9.com eq 13 log
+permit tcp any host www.web9.com eq 53 log
+permit tcp any host www.web9.com eq 443 log
+Interface Gi 3
+ip access-group LASTFWP in
+ do sh ip access-list LASTFWP
 
 
+task 8: Cofiguring cisco net services
+network time protocol or NTP
+is a layer 7 protocol using UDP 123
+cofig ur VPNPH to use time.google.com servers in USA:
+conf t
+ntp server 216.239.35.8
+end
+show ntp associations
 
+Task 9. NAT: Network address translation service:
+nat, proxy, hotspot, tethering, = Penge Internet
+give internet to your entire building using cisco
+1. define Inside and Outside.
+2. creat access-list to permit IP of Inside.
+3. create a nat pool with overload.
 
+conf t
+int gi 1
+ip nat outside
+int gi 2
+ip nat inside
+int gi 3
+ip nat inside
+no access-list 7
+access-list 7 permit 192.168.102.0 0.0.0.255
+access-list 7 permit 192.168.103.0 0.0.0.255
+ip nat inside source list 7 interface Gi 1 overload
+ip nat inside source static 192.168.102.69 192.168.108.69
+ip nat inside source static 192.168.103.88 192.168.108.88
+end
 
+task 10. do you have to replaced by A.I at work? replaced by younger, smarter, cheaper new hires??
+how to be untouchable employee?
+if you want hayup/six digits sweldo/untouchable status.
+you need hayup/six digits sweldo habits.
 
-
-
-
-
-
-
-
-
-
-
-
-
+1
 
 
 
